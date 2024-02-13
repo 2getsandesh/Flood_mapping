@@ -17,10 +17,11 @@ def toDB(img):
 def toNatural(img):
     return ee.Image(10.0).pow(img.select(0).divide(10.0))
 # Define the RefinedLee function
+# Define the RefinedLee function
 def RefinedLee(img):
-    # Implementation of Refined Lee Speckle filter here
-    # This function should return the filtered image
-    return result
+    # Placeholder implementation, replace with actual speckle filtering logic
+    return img
+
 # Load Global Surface Water (GSW) dataset
 gsw = ee.Image('JRC/GSW1_1/GlobalSurfaceWater').select('seasonality')
 
@@ -68,15 +69,16 @@ folium.GeoJson(geometry.getInfo(), name='Ernakulam District').add_to(my_map)
 
 # Add layers to the map
 folium.TileLayer(
-    tiles=before.getMapId({'min': -25, 'max': 0})['tile_fetcher'].url_format,
+    tiles=before.getMapId({'min': -25, 'max': 0})['image']['tile_fetcher']['url_format'],
     attr='Before Floods',
     overlay=True,
 ).add_to(my_map)
 folium.TileLayer(
-    tiles=after.getMapId({'min': -25, 'max': 0})['tile_fetcher'].url_format,
+    tiles=after.getMapId({'min': -25, 'max': 0})['image']['tile_fetcher']['url_format'],
     attr='After Floods',
     overlay=True,
 ).add_to(my_map)
+
 
 
 
@@ -103,22 +105,22 @@ folium.TileLayer(
 # Mask out areas with permanent water
 permanentWater = gsw.select('seasonality').gte(5).clip(geometry)
 flooded = flooded.where(permanentWater, 0).selfMask()
-folium.Map.addLayer(permanentWater.selfMask(), {'min': 0, 'max': 1, 'palette': ['blue']}, 'Permanent Water')
+my_map.add_layer(permanentWater.selfMask(), {'min': 0, 'max': 1, 'palette': ['blue']}, 'Permanent Water')
 
 # Mask out areas with more than 5 percent slope using the HydroSHEDS DEM
 slopeThreshold = 5
 terrain = ee.Algorithms.Terrain(hydrosheds)
 slope = terrain.select('slope')
 flooded = flooded.updateMask(slope.lt(slopeThreshold))
-folium.Map.addLayer(slope.gte(slopeThreshold).selfMask(), {'min': 0, 'max': 1, 'palette': ['cyan']}, 'Steep Areas', False)
+my_map.add_layer(slope.gte(slopeThreshold).selfMask(), {'min': 0, 'max': 1, 'palette': ['cyan']}, 'Steep Areas', False)
 
 # Remove isolated pixels
 connectedPixelThreshold = 8
 connections = flooded.connectedPixelCount(25)
 flooded = flooded.updateMask(connections.gt(connectedPixelThreshold))
-folium.Map.addLayer(connections.lte(connectedPixelThreshold).selfMask(), {'min': 0, 'max': 1, 'palette': ['yellow']}, 'Disconnected Areas', False)
+my_map.add_layer(connections.lte(connectedPixelThreshold).selfMask(), {'min': 0, 'max': 1, 'palette': ['yellow']}, 'Disconnected Areas', False)
 
-folium.Map.addLayer(flooded, {'min': 0, 'max': 1, 'palette': ['red']}, 'Flooded Areas')
+my_map.add_layer(flooded, {'min': 0, 'max': 1, 'palette': ['red']}, 'Flooded Areas')
 
 # Calculate affected area
 print('Total District Area (Ha)', geometry.area().divide(10000))
