@@ -68,19 +68,23 @@ after = afterCollection.mosaic().clip(geometry)
 folium.GeoJson(geometry.getInfo(), name='Ernakulam District').add_to(my_map)
 
 # Add layers to the map
+before_thumb_id = before.getThumbId({'min': -25, 'max': 0})
+before_tile_url = f'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/{before_thumb_id}?token={ee.data.getTileUrl(before_thumb_id)}'
+
 folium.TileLayer(
-    tiles=before.getMapId({'min': -25, 'max': 0})['image']['tile_fetcher']['url_format'],
+    tiles=before_tile_url,
     attr='Before Floods',
     overlay=True,
 ).add_to(my_map)
+
+after_thumb_id = after.getThumbId({'min': -25, 'max': 0})
+after_tile_url = f'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/{after_thumb_id}?token={ee.data.getTileUrl(after_thumb_id)}'
+
 folium.TileLayer(
-    tiles=after.getMapId({'min': -25, 'max': 0})['image']['tile_fetcher']['url_format'],
+    tiles=after_tile_url,
     attr='After Floods',
     overlay=True,
 ).add_to(my_map)
-
-
-
 
 
 # Apply speckle filtering
