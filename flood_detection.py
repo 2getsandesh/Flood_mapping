@@ -223,7 +223,7 @@ Map.addLayer(flooded, {'min': 0, 'max': 1, 'palette': ['red']}, 'Flooded Areas')
 Map.addLayerControl()
 Map
 
-# Calculate Affected Area
+'''# Calculate Affected Area
 print('Total District Area (Ha)', geometry.area().divide(10000))
 
 # Calculate the flooded area
@@ -249,4 +249,4 @@ task = ee.batch.Export.table.toDrive(
     fileNamePrefix='flooded_area',
     fileFormat='CSV'
 )
-task.start()
+task.start()'''
